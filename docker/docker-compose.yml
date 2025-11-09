@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:6.0
+    container_name: bank-mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: none
+      MONGO_INITDB_ROOT_PASSWORD: none
+      MONGO_INITDB_DATABASE: bankdb
+    volumes:
+      - mongodb-data:/data/db
+      - ./database/mongodb/init-db.js:/docker-entrypoint-initdb.d/init-db.js
+    networks:
+      - bank-network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: bank-backend
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATA_MONGODB_URI=mongodb://admin:password123@mongodb:27017/bankdb?authSource=admin
+      - JWT_SECRET=BankManagementSystemSecretKeyForJWTTokenGenerationMustBeAtLeast256BitsLong
+      - JWT_EXPIRATION=86400000
+    depends_on:
+      - mongodb
+    networks:
+      - bank-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: bank-frontend
+    restart: always
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - bank-network
+
+networks:
+  bank-network:
+    driver: bridge
+
+volumes:
+  mongodb-data:

@@ -3,10 +3,13 @@ package com.bank.model;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import lombok.Data;
+import org.springframework.stereotype.Component;
+
 import java.time.LocalDateTime;
 
 @Data
 @Document(collection = "beneficiaries")
+@Component
 public class Beneficiary {
     @Id
     private String id;

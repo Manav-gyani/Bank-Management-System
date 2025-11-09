@@ -18,11 +18,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -47,23 +48,62 @@ public class AuthService {
     private JwtTokenProvider tokenProvider;
 
     public AuthResponse login(LoginRequest loginRequest) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        loginRequest.getUsername(),
-                        loginRequest.getPassword()
-                )
-        );
+        try {
+            // Check if user exists first
+            User user = userRepository.findByUsername(loginRequest.getUsername())
+                    .orElseThrow(() -> new BadRequestException("Invalid username or password"));
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        String jwt = tokenProvider.generateToken(authentication);
+            // Attempt authentication
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            loginRequest.getUsername(),
+                            loginRequest.getPassword()
+                    )
+            );
 
-        User user = userRepository.findByUsername(loginRequest.getUsername())
-                .orElseThrow(() -> new BadRequestException("User not found"));
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            String jwt = tokenProvider.generateToken(authentication);
 
-        return new AuthResponse(jwt, user.getUsername(), user.getEmail());
+            AuthResponse response = new AuthResponse(jwt, user.getUsername(), user.getEmail());
+            response.setUserId(user.getId()); // Set user ID for frontend
+
+            // Try to find customer by email (only for CUSTOMER role users)
+            if (user.getRoles().contains(User.Role.CUSTOMER)) {
+                // Find all customers with this email and use the oldest one (first created)
+                Customer customer = findCustomerByEmailSafe(user.getEmail());
+
+                if (customer != null) {
+                    response.setCustomerId(customer.getId());
+                    System.out.println("✅ Login successful - Customer ID: " + customer.getId());
+                } else {
+                    // Create customer profile if it doesn't exist for CUSTOMER role users
+                    System.out.println("⚠️ No customer profile found, creating one...");
+                    Customer newCustomer = new Customer();
+                    newCustomer.setEmail(user.getEmail());
+                    newCustomer.setFirstName(user.getUsername());
+                    newCustomer.setLastName("");
+                    newCustomer.setCreatedAt(LocalDateTime.now());
+                    newCustomer.setUpdatedAt(LocalDateTime.now());
+                    
+                    Customer savedCustomer = customerRepository.save(newCustomer);
+                    response.setCustomerId(savedCustomer.getId());
+                    System.out.println("✅ Customer profile created - Customer ID: " + savedCustomer.getId());
+                }
+            }
+            
+            return response;
+        } catch (org.springframework.security.core.AuthenticationException e) {
+            // For security, use generic message instead of exposing specific error
+            throw new BadRequestException("Invalid username or password");
+        } catch (BadRequestException e) {
+            // Re-throw BadRequestException as-is
+            throw e;
+        } catch (Exception e) {
+            System.err.println("Login error: " + e.getMessage());
+            throw new BadRequestException("Login failed: " + e.getMessage());
+        }
     }
 
-    @Transactional
     public String register(RegisterRequest registerRequest) {
         if (userRepository.existsByUsername(registerRequest.getUsername())) {
             throw new BadRequestException("Username is already taken!");
@@ -112,5 +152,32 @@ public class AuthService {
 
     private String generateAccountNumber() {
         return String.format("%012d", System.currentTimeMillis() % 1000000000000L);
+    }
+    
+    /**
+     * Safely find customer by email, handling duplicates by returning the oldest
+     */
+    private Customer findCustomerByEmailSafe(String email) {
+        // Use findAllByEmail to avoid non-unique result errors
+        List<Customer> customers = customerRepository.findAllByEmail(email);
+        
+        if (customers.isEmpty()) {
+            return null;
+        }
+        
+        if (customers.size() > 1) {
+            System.out.println("⚠️ Multiple customers found with email: " + email + ", using oldest one");
+        }
+        
+        // Sort by createdAt and return the oldest
+        customers.sort((c1, c2) -> {
+            if (c1.getCreatedAt() == null) return 1;
+            if (c2.getCreatedAt() == null) return -1;
+            return c1.getCreatedAt().compareTo(c2.getCreatedAt());
+        });
+        
+        Customer oldest = customers.get(0);
+        System.out.println("✅ Using customer: " + oldest.getId());
+        return oldest;
     }
 }

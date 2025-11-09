@@ -25,6 +25,15 @@ public class BeneficiaryController {
         return ResponseEntity.ok(beneficiaryService.addBeneficiary(beneficiary));
     }
 
+    @PostMapping("/customer/{customerId}")
+    @PreAuthorize("hasAnyRole('CUSTOMER', 'EMPLOYEE', 'ADMIN')")
+    public ResponseEntity<Beneficiary> addBeneficiaryForCustomer(
+            @PathVariable String customerId,
+            @Valid @RequestBody Beneficiary beneficiary) {
+        beneficiary.setCustomerId(customerId);
+        return ResponseEntity.ok(beneficiaryService.addBeneficiary(beneficiary));
+    }
+
     @GetMapping("/customer/{customerId}")
     @PreAuthorize("hasAnyRole('CUSTOMER', 'EMPLOYEE', 'ADMIN')")
     public ResponseEntity<List<Beneficiary>> getCustomerBeneficiaries(@PathVariable String customerId) {

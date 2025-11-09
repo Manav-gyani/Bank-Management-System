@@ -21,9 +21,13 @@ public class Constants {
     // Interest Rates
     public static final BigDecimal SAVINGS_INTEREST_RATE = BigDecimal.valueOf(4.0); // 4% per annum
     public static final BigDecimal FD_INTEREST_RATE = BigDecimal.valueOf(6.5); // 6.5% per annum
+    
+    // Loan Interest Rates (per annum)
     public static final BigDecimal LOAN_INTEREST_RATE_HOME = BigDecimal.valueOf(8.5); // 8.5% per annum
     public static final BigDecimal LOAN_INTEREST_RATE_PERSONAL = BigDecimal.valueOf(12.0); // 12% per annum
     public static final BigDecimal LOAN_INTEREST_RATE_CAR = BigDecimal.valueOf(10.0); // 10% per annum
+    public static final BigDecimal LOAN_INTEREST_RATE_EDUCATION = BigDecimal.valueOf(9.0); // 9% per annum
+    public static final BigDecimal LOAN_INTEREST_RATE_BUSINESS = BigDecimal.valueOf(11.5); // 11.5% per annum
 
     // Loan Related
     public static final BigDecimal MINIMUM_LOAN_AMOUNT = BigDecimal.valueOf(50000);

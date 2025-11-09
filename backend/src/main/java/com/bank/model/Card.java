@@ -3,12 +3,15 @@ package com.bank.model;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import lombok.Data;
+import org.springframework.stereotype.Component;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
 @Document(collection = "cards")
+@Component
 public class Card {
     @Id
     private String id;

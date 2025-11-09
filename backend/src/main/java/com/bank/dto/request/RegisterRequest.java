@@ -21,6 +21,7 @@ public class RegisterRequest {
     private String firstName;
     private String lastName;
     private String phone;
+    private String address;
 
     // Getters and Setters
     public String getUsername() {
@@ -69,5 +70,13 @@ public class RegisterRequest {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     }
 }

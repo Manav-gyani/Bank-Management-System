@@ -1,5 +1,6 @@
 package com.bank.controller;
 
+import com.bank.dto.request.TransferRequest;
 import com.bank.dto.response.ApiResponse;
 import com.bank.dto.response.TransactionResponse;
 import com.bank.model.Transaction;
@@ -69,5 +70,16 @@ public class TransactionController {
     public ResponseEntity<?> deleteTransaction(@PathVariable String id) {
         transactionService.deleteTransaction(id);
         return ResponseEntity.ok(new ApiResponse(true, "Transaction deleted successfully"));
+    }
+
+    @PostMapping
+    @PreAuthorize("hasAnyRole('CUSTOMER')")
+    public ResponseEntity<?> transfer(@RequestBody TransferRequest transferRequest){
+        try{
+            Transaction transaction=transactionService.transferAmount(transferRequest.getFromAccount(),transferRequest.getToAccount(),transferRequest.getAmount());
+            return ResponseEntity.ok(transaction);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }

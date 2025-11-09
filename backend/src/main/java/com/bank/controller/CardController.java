@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/cards")
@@ -23,6 +24,16 @@ public class CardController {
     @PreAuthorize("hasAnyRole('CUSTOMER', 'EMPLOYEE', 'ADMIN')")
     public ResponseEntity<Card> createCard(@Valid @RequestBody Card card) {
         return ResponseEntity.ok(cardService.createCard(card));
+    }
+
+    @PostMapping("/account/{accountNumber}")
+    @PreAuthorize("hasAnyRole('CUSTOMER', 'EMPLOYEE', 'ADMIN')")
+    public ResponseEntity<Card> createCardForAccount(
+            @PathVariable String accountNumber,
+            @RequestBody Map<String, String> request) {
+        String cardType = request.get("cardType");
+        Card card = cardService.createCardForAccount(accountNumber, Card.CardType.valueOf(cardType));
+        return ResponseEntity.ok(card);
     }
 
     @GetMapping("/{id}")

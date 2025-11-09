@@ -1,7 +1,7 @@
 package com.bank.controller;
 
 import com.bank.dto.response.AccountWithCustomerDTO;
-//import com.bank.dto.response.ApiResponse;
+import com.bank.dto.response.ApiResponse;
 import com.bank.model.Account;
 import com.bank.model.Customer;
 import com.bank.model.Transaction;
@@ -28,9 +28,19 @@ public class AccountController {
     public ResponseEntity<Account> createAccountForCustomer(
             @PathVariable String customerId,
             @RequestBody Map<String, String> request) {
-        Account.AccountType accountType = Account.AccountType.valueOf(
-                request.get("accountType").toUpperCase()
-        );
+        String accountTypeStr = request.get("accountType");
+        if (accountTypeStr == null || accountTypeStr.trim().isEmpty()) {
+            throw new IllegalArgumentException("accountType is required");
+        }
+        
+        Account.AccountType accountType;
+        try {
+            accountType = Account.AccountType.valueOf(accountTypeStr.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid account type: " + accountTypeStr + 
+                    ". Valid types are: SAVINGS, CURRENT, FIXED_DEPOSIT, RECURRING_DEPOSIT");
+        }
+        
         Account account = accountService.createAccount(customerId, accountType);
         return ResponseEntity.ok(account);
     }
@@ -92,15 +102,15 @@ public class AccountController {
         return ResponseEntity.ok(accountService.withdraw(accountNumber, amount, description));
     }
 
-//    @PostMapping("/transfer")
-//    @PreAuthorize("hasAnyRole('CUSTOMER', 'EMPLOYEE', 'ADMIN')")
-//    public ResponseEntity<ApiResponse> transfer(@RequestBody Map<String, Object> request) {
-//        String fromAccount = (String) request.get("fromAccount");
-//        String toAccount = (String) request.get("toAccount");
-//        BigDecimal amount = new BigDecimal(request.get("amount").toString());
-//        String description = (String) request.get("description");
-//
-//        accountService.transfer(fromAccount, toAccount, amount, description);
-//        return ResponseEntity.ok(new ApiResponse(true, "Transfer successful"));
-//    }
+    @PostMapping("/transfer")
+    @PreAuthorize("hasAnyRole('CUSTOMER', 'EMPLOYEE', 'ADMIN')")
+    public ResponseEntity<ApiResponse> transfer(@RequestBody Map<String, Object> request) {
+        String fromAccount = (String) request.get("fromAccount");
+        String toAccount = (String) request.get("toAccount");
+        BigDecimal amount = new BigDecimal(request.get("amount").toString());
+        String description = (String) request.get("description");
+
+        accountService.transfer(fromAccount, toAccount, amount, description);
+        return ResponseEntity.ok(new ApiResponse(true, "Transfer successful"));
+    }
 }

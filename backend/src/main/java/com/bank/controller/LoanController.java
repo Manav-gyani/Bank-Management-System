@@ -26,6 +26,15 @@ public class LoanController {
         return ResponseEntity.ok(loanService.createLoan(loan));
     }
 
+    @PostMapping("/customer/{customerId}")
+    @PreAuthorize("hasAnyRole('CUSTOMER', 'EMPLOYEE', 'ADMIN')")
+    public ResponseEntity<Loan> createLoanForCustomer(
+            @PathVariable String customerId,
+            @Valid @RequestBody Loan loan) {
+        loan.setCustomerId(customerId);
+        return ResponseEntity.ok(loanService.createLoan(loan));
+    }
+
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('CUSTOMER', 'EMPLOYEE', 'ADMIN')")
     public ResponseEntity<Loan> getLoanById(@PathVariable String id) {
