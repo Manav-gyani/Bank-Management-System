@@ -26,22 +26,14 @@ public class CORSConfig {
         // Allow credentials
         config.setAllowCredentials(true);
 
-        // Allow specific origins from environment variable
-        List<String> origins = Arrays.asList(allowedOrigins.split(","));
-        config.setAllowedOrigins(origins);
+        // Use origin patterns (more reliable on Render)
+        config.setAllowedOriginPatterns(Arrays.asList(allowedOrigins.split(",")));
 
         // Allow all headers
-        config.setAllowedHeaders(Arrays.asList("*"));
+        config.setAllowedHeaders(List.of("*"));
 
         // Allow specific HTTP methods
-        config.setAllowedMethods(Arrays.asList(
-                "GET",
-                "POST",
-                "PUT",
-                "DELETE",
-                "OPTIONS",
-                "PATCH"
-        ));
+        config.setAllowedMethods(Collections.singletonList("*"));
 
         // Expose headers
         config.setExposedHeaders(Arrays.asList(
@@ -63,19 +55,5 @@ public class CORSConfig {
         return new CorsFilter(source);
     }
 
-    // @Bean
-    // public CorsConfigurationSource corsConfigurationSource() {
-    //     CorsConfiguration configuration = new CorsConfiguration();
 
-    //     configuration.setAllowedOriginPatterns(Collections.singletonList("*"));
-    //     configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-    //     configuration.setAllowedHeaders(Arrays.asList("*"));
-    //     configuration.setAllowCredentials(true);
-    //     configuration.setMaxAge(3600L);
-
-    //     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-    //     source.registerCorsConfiguration("/**", configuration);
-
-    //     return source;
-    // }
 }
