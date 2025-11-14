@@ -13,7 +13,7 @@ const Cards = () => {
   const [submitting, setSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     accountNumber: '',
-    cardType: 'DEBIT',
+    cardType: 'DEBIT_CARD',
   });
 
   useEffect(() => {
@@ -63,7 +63,7 @@ const Cards = () => {
       
       toast.success('Card application submitted successfully!');
       setShowApplyModal(false);
-      setFormData({ accountNumber: '', cardType: 'DEBIT' });
+      setFormData({ accountNumber: '', cardType: 'DEBIT_CARD' });
       fetchCards();
     } catch (error) {
       console.error('Error applying for card:', error);
@@ -190,8 +190,9 @@ const Cards = () => {
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                     required
                   >
-                    <option value="DEBIT">Debit Card</option>
-                    <option value="CREDIT">Credit Card</option>
+                    <option value="DEBIT_CARD">Debit Card</option>
+                    <option value="CREDIT_CARD">Credit Card</option>
+                    <option value="PREPAID_CARD">Prepaid Card</option>
                   </select>
                 </div>
 

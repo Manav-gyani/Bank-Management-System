@@ -17,6 +17,7 @@ import Cards from '../pages/Cards';
 import Profile from '../pages/Profile';
 import Settings from '../pages/Settings';
 import NotFound from '../pages/NotFound';
+import AdminPanel from '../components/AdminPanel';
 
 const AppRoutes = () => {
   return (
@@ -24,6 +25,7 @@ const AppRoutes = () => {
       {/* Public Routes */}
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/admin" element={<AdminPanel />} />
 
       {/* Protected Routes */}
       <Route

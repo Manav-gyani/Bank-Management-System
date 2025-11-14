@@ -1,6 +1,15 @@
 db = db.getSiblingDB('bankdb');
 
-// Seed admin user
+// Seed admin in admins collection
+db.admins.insertOne({
+  username: 'admin',
+  email: 'admin@bank.com',
+  password: '$2a$10$slYQmyNdGzTn7ZLBXBChFOC9f6kFjAqPhccnP6DxlWXx2lPk1C3G6', // password: admin123
+  createdAt: new Date(),
+  lastLogin: null
+});
+
+// Seed admin user in users collection
 db.users.insertOne({
   username: 'admin',
   email: 'admin@bank.com',

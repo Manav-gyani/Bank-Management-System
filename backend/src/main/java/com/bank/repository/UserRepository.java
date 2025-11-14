@@ -1,6 +1,8 @@
 package com.bank.repository;
 
 import com.bank.model.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 import java.util.Optional;
@@ -11,4 +13,7 @@ public interface UserRepository extends MongoRepository<User, String> {
     Optional<User> findByEmail(String email);
     Boolean existsByUsername(String username);
     Boolean existsByEmail(String email);
+
+    //New
+    Page<User> findByUsernameContainingOrEmailContaining(String username, String email, Pageable pageable);
 }

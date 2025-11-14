@@ -1,5 +1,6 @@
 package com.bank.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
@@ -9,9 +10,13 @@ import org.springframework.web.filter.CorsFilter;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 @Configuration
 public class CORSConfig {
+
+    @Value("${app.cors.allowed-origins}")
+    private String allowedOrigins;
 
     @Bean
     public CorsFilter corsFilter() {
@@ -21,15 +26,9 @@ public class CORSConfig {
         // Allow credentials
         config.setAllowCredentials(true);
 
-        // Allow all origins (in production, specify exact origins)
-        config.setAllowedOriginPatterns(Collections.singletonList("*"));
-
-        // Alternatively, for specific origins:
-        // config.setAllowedOrigins(Arrays.asList(
-        //     "http://localhost:3000",
-        //     "http://localhost:3001",
-        //     "https://your-production-domain.com"
-        // ));
+        // Allow specific origins from environment variable
+        List<String> origins = Arrays.asList(allowedOrigins.split(","));
+        config.setAllowedOrigins(origins);
 
         // Allow all headers
         config.setAllowedHeaders(Arrays.asList("*"));
@@ -64,19 +63,19 @@ public class CORSConfig {
         return new CorsFilter(source);
     }
 
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
+    // @Bean
+    // public CorsConfigurationSource corsConfigurationSource() {
+    //     CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.setAllowedOriginPatterns(Collections.singletonList("*"));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-        configuration.setAllowedHeaders(Arrays.asList("*"));
-        configuration.setAllowCredentials(true);
-        configuration.setMaxAge(3600L);
+    //     configuration.setAllowedOriginPatterns(Collections.singletonList("*"));
+    //     configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+    //     configuration.setAllowedHeaders(Arrays.asList("*"));
+    //     configuration.setAllowCredentials(true);
+    //     configuration.setMaxAge(3600L);
 
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
+    //     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    //     source.registerCorsConfiguration("/**", configuration);
 
-        return source;
-    }
+    //     return source;
+    // }
 }
