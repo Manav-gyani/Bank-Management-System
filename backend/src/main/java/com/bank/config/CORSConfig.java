@@ -17,43 +17,27 @@ public class CORSConfig {
 
     @Value("${app.cors.allowed-origins}")
     private String allowedOrigins;
-
     @Bean
     public CorsFilter corsFilter() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
 
-        // Allow credentials
         config.setAllowCredentials(true);
 
-        // Use origin patterns (more reliable on Render)
-        config.setAllowedOriginPatterns(Arrays.asList(allowedOrigins.split(",")));
+        // Read allowed origins from application.properties
+        List<String> origins = Arrays.asList(allowedOrigins.split(","));
+        config.setAllowedOriginPatterns(origins);  // IMPORTANT: patterns not origins
 
-        // Allow all headers
         config.setAllowedHeaders(List.of("*"));
-
-        // Allow specific HTTP methods
-        config.setAllowedMethods(Collections.singletonList("*"));
-
-        // Expose headers
-        config.setExposedHeaders(Arrays.asList(
-                "Authorization",
-                "Content-Type",
-                "X-Requested-With",
-                "Accept",
-                "Origin",
-                "Access-Control-Request-Method",
-                "Access-Control-Request-Headers"
-        ));
-
-        // Max age for preflight requests
+        config.setAllowedMethods(List.of("*"));
+        config.setExposedHeaders(List.of("Authorization", "Content-Type"));
         config.setMaxAge(3600L);
 
-        // Register CORS configuration for all endpoints
         source.registerCorsConfiguration("/**", config);
-
         return new CorsFilter(source);
     }
+
+
 
 
 }
